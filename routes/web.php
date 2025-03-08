@@ -49,13 +49,15 @@ Route::middleware('auth')->group(function () {
         
         // Check user type by property instead of method
         if ($user->user_type === \App\Models\User::TYPE_ADMIN) {
-            return redirect()->route('admin.dashboard');
+            // Admin dashboard
+            return view('admin.dashboard');
         } elseif ($user->user_type === \App\Models\User::TYPE_STORE_OWNER) {
             // If they have only one store, redirect to it
             $stores = $user->ownedStores;
             
             if ($stores->count() === 0) {
-                return redirect()->route('admin.stores.create');
+                // No stores yet, show the dashboard with option to create store
+                return view('admin.dashboard');
             } elseif ($stores->count() === 1) {
                 // Get the store URL if available
                 $store = $stores->first();
@@ -66,11 +68,11 @@ Route::middleware('auth')->group(function () {
                 }
             }
             
-            // Otherwise, go to stores list
-            return redirect()->route('admin.stores.index');
+            // Otherwise, show the dashboard with stores list
+            return view('admin.dashboard');
         }
         
-        return redirect()->route('admin.dashboard');
+        return view('admin.dashboard');
     })->name('home');
 });
 

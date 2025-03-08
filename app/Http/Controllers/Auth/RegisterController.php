@@ -43,7 +43,10 @@ class RegisterController extends Controller
 
         Auth::login($user);
 
-        // Redirect to store creation
-        return redirect()->route('admin.stores.create');
+        // Flash a success message
+        session()->flash('success', 'Your store has been created successfully! You can customize it from your dashboard.');
+
+        // Redirect to home route which will handle redirection based on user type
+        return redirect()->route('home');
     }
 } 

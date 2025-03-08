@@ -15,7 +15,7 @@ use App\Http\Controllers\Admin\StoreController;
 |
 */
 
-Route::middleware(['auth', 'web'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     

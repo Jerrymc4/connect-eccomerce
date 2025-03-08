@@ -56,6 +56,18 @@
         </div>
 
         <div>
+            <label for="store_name" class="block text-sm font-medium text-gray-700">Store Name</label>
+            <div class="mt-1">
+                <input id="store_name" name="store_name" type="text" required value="{{ old('store_name') }}" 
+                    class="admin-input @error('store_name') border-red-500 @enderror">
+                <p class="mt-1 text-xs text-gray-500">This will be the name of your store. You can change it later.</p>
+            </div>
+            @error('store_name')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div>
             <button type="submit" class="w-full admin-button">
                 Register
             </button>

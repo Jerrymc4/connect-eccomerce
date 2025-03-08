@@ -8,6 +8,9 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class GoogleController extends Controller
 {
@@ -29,6 +32,9 @@ class GoogleController extends Controller
     public function handleGoogleCallback()
     {
         try {
+            // Begin transaction
+            \Illuminate\Support\Facades\DB::connection(config('tenancy.database.central_connection'))->beginTransaction();
+            
             $googleUser = Socialite::driver('google')->user();
             
             // Check if user already exists
@@ -47,6 +53,30 @@ class GoogleController extends Controller
                         'avatar' => $googleUser->avatar,
                         'user_type' => User::TYPE_STORE_OWNER, // Default to store owner
                     ]);
+                    
+                    // Create a default store for the user
+                    $storeName = $googleUser->name . "'s Store";
+                    $storeSlug = Str::slug($storeName);
+                    $storeDomain = $storeSlug . '.' . config('app.url_base', 'example.com');
+                    
+                    // Create the store
+                    $store = \App\Models\Store::createStore(
+                        $storeName,
+                        $storeDomain,
+                        $user->email,
+                        [
+                            'owner_name' => $user->name,
+                            'owner_email' => $user->email,
+                            'status' => 'active',
+                            'slug' => $storeSlug,
+                        ]
+                    );
+                    
+                    // Link store to user
+                    $store->updateOwner($user);
+                    
+                    // Flash a success message
+                    session()->flash('success', 'Your store has been created successfully! You can customize it from your dashboard.');
                 } else {
                     // Update existing user with Google ID
                     $user->update([
@@ -59,6 +89,8 @@ class GoogleController extends Controller
             // Login the user
             Auth::login($user);
             
+            \Illuminate\Support\Facades\DB::connection(config('tenancy.database.central_connection'))->commit();
+
             // Redirect based on user type
             if ($user->isAdmin()) {
                 return redirect()->route('admin.dashboard');
@@ -67,8 +99,9 @@ class GoogleController extends Controller
                 $stores = $user->ownedStores;
                 
                 if ($stores->count() === 0) {
-                    // No stores yet, redirect to create one
-                    return redirect()->route('admin.stores.create');
+                    // No stores yet, redirect to home route
+                    session()->flash('success', 'Your store has been created successfully! You can customize it from your dashboard.');
+                    return redirect()->route('home');
                 } elseif ($stores->count() === 1) {
                     // One store, redirect to it
                     $store = $stores->first();
