@@ -34,4 +34,10 @@ Route::middleware(['store'])->group(function () {
     Route::get('/', function () {
         return view('store.welcome');
     })->name('store.welcome');
+});
+
+// Store authentication routes
+Route::middleware(['guest'])->group(function () {
+    Route::get('/login', [App\Http\Controllers\Auth\StoreLoginController::class, 'show'])->name('store.login');
+    Route::post('/login', [App\Http\Controllers\Auth\StoreLoginController::class, 'login']);
 }); 

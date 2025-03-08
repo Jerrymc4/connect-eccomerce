@@ -35,8 +35,17 @@ class RouteServiceProvider extends ServiceProvider
                 ->prefix('api')
                 ->group(base_path('routes/api.php'));
 
+            // Web routes
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
+                
+            // Auth routes
+            Route::middleware('web')
+                ->group(base_path('routes/auth.php'));
+                
+            // Admin routes
+            Route::middleware('web')
+                ->group(base_path('routes/admin.php'));
                 
             // Store-specific routes
             if ($this->app->environment('local') || $this->isStoreDomain()) {
