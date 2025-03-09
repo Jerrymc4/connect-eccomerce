@@ -3,19 +3,28 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CreateAccountRequest;
+use App\Http\Requests\CreateStoreRequest;
 use App\Models\Plan;
 use App\Models\Store;
 use App\Models\User;
+use App\Services\RegistrationService;
+use App\DataTransferObjects\RegistrationData;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules;
 
 class MultiStepRegistrationController extends Controller
 {
+    public function __construct(
+        private RegistrationService $registrationService
+    ) {}
+
     /**
      * Show the plan selection page (Step 1).
      *
@@ -39,7 +48,7 @@ class MultiStepRegistrationController extends Controller
             'plan_id' => 'required|exists:plans,id',
         ]);
 
-        $plan = Plan::findOrFail($request->plan_id);
+        $plan = $this->registrationService->getPlan($request->plan_id);
         session(['selected_plan' => $plan->id]);
 
         return redirect()->route('register.account');
@@ -67,55 +76,38 @@ class MultiStepRegistrationController extends Controller
                 ->with('error', 'Please select a plan first.');
         }
 
-        $plan = Plan::findOrFail(session('selected_plan'));
+        $plan = $this->registrationService->getPlan(session('selected_plan'));
         return view('auth.register-steps.account', compact('plan'));
     }
 
     /**
      * Process account creation and redirect to billing or store setup (Step 2 -> Step 3/4).
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  CreateAccountRequest  $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function createAccount(Request $request)
+    public function createAccount(CreateAccountRequest $request)
     {
         if (!session('selected_plan')) {
             return redirect()->route('register.plans')
                 ->with('error', 'Please select a plan first.');
         }
 
-        $plan = Plan::findOrFail(session('selected_plan'));
-
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
-
         try {
-            // Use transaction to ensure data consistency
-            DB::connection(config('tenancy.database.central_connection'))->beginTransaction();
-
-            // Create the user
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'user_type' => User::TYPE_STORE_OWNER,
-            ]);
-
-            event(new Registered($user));
+            $registrationData = RegistrationData::fromAccountRequest($request->validated());
+            $user = $this->registrationService->createAccount($registrationData);
 
             // Store registration data in session for next steps
             session([
                 'registration_data' => [
                     'user_id' => $user->id,
                     'name' => $request->name,
-                    'email' => $request->email
+                    'email' => $request->email,
+                    'password' => $request->password
                 ]
             ]);
 
-            DB::connection(config('tenancy.database.central_connection'))->commit();
+            $plan = $this->registrationService->getPlan(session('selected_plan'));
 
             // If plan is free, redirect to store setup
             if ($plan->price <= 0) {
@@ -125,9 +117,8 @@ class MultiStepRegistrationController extends Controller
             // Otherwise, redirect to billing
             return redirect()->route('register.billing');
         } catch (\Exception $e) {
-            DB::connection(config('tenancy.database.central_connection'))->rollBack();
-            
-            return back()->withInput()->withErrors(['email' => $e->getMessage()]);
+            Log::error('Account creation error: ' . $e->getMessage());
+            return back()->withInput()->withErrors(['email' => 'Failed to create account. Please try again.']);
         }
     }
 
@@ -143,7 +134,7 @@ class MultiStepRegistrationController extends Controller
                 ->with('error', 'Please start the registration process again.');
         }
 
-        $plan = Plan::findOrFail(session('selected_plan'));
+        $plan = $this->registrationService->getPlan(session('selected_plan'));
         
         // If plan is free, skip billing
         if ($plan->price <= 0) {
@@ -161,19 +152,34 @@ class MultiStepRegistrationController extends Controller
      */
     public function processBilling(Request $request)
     {
-        // This is a placeholder for Stripe integration
-        // In a real implementation, you would:
-        // 1. Validate payment details
-        // 2. Create Stripe customer and subscription
-        // 3. Store Stripe customer ID and subscription ID
+        if (!session('registration_data') || !session('selected_plan')) {
+            return redirect()->route('register.plans')
+                ->with('error', 'Please start the registration process again.');
+        }
 
-        // For now, just redirect to store setup
-        return redirect()->route('register.store');
+        $registrationData = session('registration_data');
+        $user = User::findOrFail($registrationData['user_id']);
+
+        try {
+            $this->registrationService->processBilling($user, new RegistrationData(
+                name: $registrationData['name'],
+                email: $registrationData['email'],
+                password: $registrationData['password'],
+                planId: session('selected_plan'),
+                billingData: $request->all()
+            ));
+
+            return redirect()->route('register.store');
+        } catch (\Exception $e) {
+            Log::error('Billing processing error: ' . $e->getMessage());
+            return back()->withInput()->withErrors(['error' => 'Failed to process billing. Please try again.']);
+        }
     }
 
     /**
      * Show the store setup form (Step 3).
      *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
     public function showStore(Request $request)
@@ -185,7 +191,7 @@ class MultiStepRegistrationController extends Controller
 
         // If we're coming back from a form submission, store the old input in session
         if ($request->old()) {
-            session(['store_form_data' => $request->old()]);
+            $this->registrationService->storeFormData($request->old());
         }
 
         return view('auth.register-steps.store');
@@ -205,10 +211,10 @@ class MultiStepRegistrationController extends Controller
     /**
      * Process store setup and complete registration (Step 4 -> Complete).
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  CreateStoreRequest  $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function createStore(Request $request)
+    public function createStore(CreateStoreRequest $request)
     {
         if (!session('registration_data')) {
             return redirect()->route('register.plans')
@@ -216,64 +222,16 @@ class MultiStepRegistrationController extends Controller
         }
 
         try {
-            $validated = $request->validate([
-                'name' => ['required', 'string', 'max:255'],
-                'description' => ['nullable', 'string', 'max:1000'],
-                'business_name' => ['required', 'string', 'max:255'],
-                'tax_id' => ['nullable', 'string', 'max:50'],
-                'phone' => ['nullable', 'string', 'max:20'],
-                'email' => ['required', 'string', 'email', 'max:255'],
-                'address_line1' => ['required', 'string', 'max:255'],
-                'address_line2' => ['nullable', 'string', 'max:255'],
-                'city' => ['required', 'string', 'max:100'],
-                'state' => ['required', 'string', 'max:100'],
-                'postal_code' => ['required', 'string', 'max:20'],
-                'country' => ['required', 'string', 'max:2'],
-            ]);
-
-            DB::connection(config('tenancy.database.central_connection'))->beginTransaction();
-
-            $registrationData = session('registration_data');
-            $user = User::findOrFail($registrationData['user_id']);
-
             // Store form data in session before proceeding
-            session(['store_form_data' => $request->all()]);
+            $this->registrationService->storeFormData($request->all());
 
-            // Generate store slug
-            $storeSlug = Str::slug($request->name);
-            $storeDomain = $storeSlug . '.' . config('app.url_base', 'example.com');
-
-            // Create the store
-            $store = Store::createStore(
-                $request->name,
-                $storeDomain,
-                $request->email,
-                [
-                    'description' => $request->description,
-                    'business_name' => $request->business_name,
-                    'tax_id' => $request->tax_id,
-                    'phone' => $request->phone,
-                    'email' => $request->email,
-                    'address_line1' => $request->address_line1,
-                    'address_line2' => $request->address_line2,
-                    'city' => $request->city,
-                    'state' => $request->state,
-                    'postal_code' => $request->postal_code,
-                    'country' => $request->country,
-                    'owner_name' => $user->name,
-                    'owner_email' => $user->email,
-                    'status' => 'active',
-                    'slug' => $storeSlug,
-                ]
-            );
-
-            // Link store to user
-            $store->updateOwner($user);
-
-            DB::connection(config('tenancy.database.central_connection'))->commit();
+            $registrationData = RegistrationData::fromStoreRequest($request->validated());
+            $user = User::findOrFail(session('registration_data')['user_id']);
+            
+            $store = $this->registrationService->createStore($user, $registrationData);
 
             // Clear registration data from session
-            session()->forget(['registration_data', 'selected_plan', 'store_form_data']);
+            $this->registrationService->clearRegistrationData();
 
             // Now log in the user
             Auth::login($user);
@@ -282,12 +240,7 @@ class MultiStepRegistrationController extends Controller
 
             return redirect()->route('home');
         } catch (\Exception $e) {
-            DB::connection(config('tenancy.database.central_connection'))->rollBack();
-            \Illuminate\Support\Facades\Log::error('Store creation error: ' . $e->getMessage());
-            
-            // Store form data in session before returning with error
-            session(['store_form_data' => $request->all()]);
-            
+            Log::error('Store creation error: ' . $e->getMessage());
             return back()->withInput()->withErrors(['error' => 'Failed to create store. Please try again.']);
         }
     }

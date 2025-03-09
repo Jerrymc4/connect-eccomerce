@@ -13,6 +13,10 @@ use App\Repositories\Contracts\OrderRepositoryInterface;
 use App\Repositories\Eloquent\OrderRepository;
 use App\Repositories\Contracts\CustomerRepositoryInterface;
 use App\Repositories\Eloquent\CustomerRepository;
+use App\Contracts\Repositories\UserRepositoryInterface;
+use App\Contracts\Repositories\StoreRepositoryInterface;
+use App\Repositories\Eloquent\UserRepository;
+use App\Repositories\Eloquent\StoreRepository;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
@@ -44,6 +48,9 @@ class RepositoryServiceProvider extends ServiceProvider
             CustomerRepositoryInterface::class,
             CustomerRepository::class
         );
+        
+        $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
+        $this->app->bind(StoreRepositoryInterface::class, StoreRepository::class);
         
         // Add more repository bindings as needed
     }
