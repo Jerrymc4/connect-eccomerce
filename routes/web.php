@@ -69,23 +69,22 @@ Route::middleware('auth')->group(function () {
             // Admin dashboard
             return view('admin.dashboard');
         } elseif ($user->user_type === \App\Models\User::TYPE_STORE_OWNER) {
-            // If they have only one store, redirect to it
-            $stores = $user->ownedStores;
+            // Get the store if it exists
+            $store = $user->store;
             
-            if ($stores->count() === 0) {
-                // No stores yet, show the dashboard with option to create store
+            if (!$store) {
+                // No store yet, show the dashboard with option to create store
                 return view('admin.dashboard');
-            } elseif ($stores->count() === 1) {
-                // Get the store URL if available
-                $store = $stores->first();
-                $domain = $store->domains->first();
-                
-                if ($domain) {
-                    return redirect()->away("https://{$domain->domain}");
-                }
             }
             
-            // Otherwise, show the dashboard with stores list
+            // Get the store URL if available
+            $domain = $store->domains->first();
+            
+            if ($domain) {
+                return redirect()->away("https://{$domain->domain}");
+            }
+            
+            // Otherwise, show the dashboard
             return view('admin.dashboard');
         }
         

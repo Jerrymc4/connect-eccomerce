@@ -6,6 +6,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class User extends Authenticatable
 {
@@ -54,13 +56,17 @@ class User extends Authenticatable
      */
     const TYPE_ADMIN = 'admin';
     const TYPE_STORE_OWNER = 'store_owner';
+    const TYPE_STAFF = 'staff';
+    const TYPE_CUSTOMER = 'customer';
 
     /**
-     * Get all stores owned by the user.
+     * Get the store owned by the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function ownedStores()
+    public function store()
     {
-        return $this->hasMany(Store::class, 'owner_id');
+        return $this->hasOne(Store::class, 'owner_id');
     }
 
     /**

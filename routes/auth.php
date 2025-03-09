@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\MultiStepRegistrationController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use Illuminate\Support\Facades\Route;
@@ -13,9 +13,15 @@ Route::get('/auth-debug', function() {
 
 // Guest routes
 Route::middleware('guest')->group(function () {
-    // Registration
-    Route::get('/register', [RegisterController::class, 'show'])->name('register');
-    Route::post('/register', [RegisterController::class, 'register']);
+    // Registration Steps
+    Route::get('/register', [MultiStepRegistrationController::class, 'showPlans'])->name('register');
+    Route::post('/register/plan', [MultiStepRegistrationController::class, 'selectPlan'])->name('register.plan.select');
+    
+    Route::get('/register/account', [MultiStepRegistrationController::class, 'showAccount'])->name('register.account');
+    Route::post('/register/account', [MultiStepRegistrationController::class, 'createAccount'])->name('register.account.create');
+    
+    Route::get('/register/store', [MultiStepRegistrationController::class, 'showStore'])->name('register.store');
+    Route::post('/register/store', [MultiStepRegistrationController::class, 'createStore'])->name('register.store.create');
 
     // Login
     Route::get('/login', [LoginController::class, 'show'])->name('login');

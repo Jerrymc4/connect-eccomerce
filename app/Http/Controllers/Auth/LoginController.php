@@ -34,15 +34,14 @@ class LoginController extends Controller
             // Redirect based on user type
             $user = Auth::user();
             
-            if ($user->isAdmin()) {
+            if ($user->user_type === \App\Models\User::TYPE_ADMIN) {
                 return redirect()->intended(route('admin.dashboard'));
-            } elseif ($user->isStoreOwner()) {
-                // If they have only one store, redirect to it
-                $stores = $user->ownedStores;
+            } elseif ($user->user_type === \App\Models\User::TYPE_STORE_OWNER) {
+                // Get the store if it exists
+                $store = $user->store;
                 
-                if ($stores->count() === 1) {
+                if ($store) {
                     // Get the store URL if available
-                    $store = $stores->first();
                     $domain = $store->domains->first();
                     
                     if ($domain) {
@@ -50,8 +49,8 @@ class LoginController extends Controller
                     }
                 }
                 
-                // Otherwise, go to stores list
-                return redirect()->intended(route('admin.stores.index'));
+                // Otherwise, go to dashboard
+                return redirect()->intended(route('admin.dashboard'));
             }
 
             return redirect()->intended(route('home'));

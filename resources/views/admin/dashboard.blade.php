@@ -62,31 +62,42 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <!-- Store Info -->
                         <div class="bg-gray-50 p-6 rounded-lg shadow">
-                            <h3 class="font-bold text-lg mb-2">Your Stores</h3>
+                            <h3 class="font-bold text-lg mb-2">Your Store</h3>
                             @php
-                                $stores = Auth::user()->ownedStores;
+                                $store = Auth::user()->store;
                             @endphp
 
-                            @if($stores->count() > 0)
-                                <ul class="space-y-2">
-                                    @foreach($stores as $store)
-                                        <li class="p-3 bg-white rounded shadow-sm">
-                                            <div class="font-medium">{{ $store->name }}</div>
-                                            <div class="text-sm text-gray-500">
-                                                @if($store->domains->count() > 0)
-                                                    <a href="https://{{ $store->domains->first()->domain }}" target="_blank" class="text-indigo-600 hover:text-indigo-800">
-                                                        {{ $store->domains->first()->domain }}
-                                                    </a>
-                                                @else
-                                                    No domain set
-                                                @endif
-                                            </div>
-                                        </li>
-                                    @endforeach
-                                </ul>
+                            @if($store)
+                                <div class="p-3 bg-white rounded shadow-sm">
+                                    <div class="font-medium">{{ $store->name }}</div>
+                                    <div class="text-sm text-gray-500">
+                                        @if($store->domains->count() > 0)
+                                            <a href="https://{{ $store->domains->first()->domain }}" target="_blank" class="text-indigo-600 hover:text-indigo-800">
+                                                {{ $store->domains->first()->domain }}
+                                            </a>
+                                        @else
+                                            No domain set
+                                        @endif
+                                    </div>
+                                    <div class="mt-2">
+                                        <a href="{{ $store->domains->first() ? 'https://' . $store->domains->first()->domain : '#' }}" class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800">
+                                            <span>Manage Store</span>
+                                            <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </div>
                             @else
-                                <p class="text-gray-500">You don't have any stores yet.</p>
-                                <a href="#" class="mt-2 inline-block text-indigo-600 hover:text-indigo-800">Create a store</a>
+                                <div class="text-gray-500 text-sm">
+                                    <p>You haven't created a store yet.</p>
+                                    <a href="{{ route('register.store') }}" class="mt-2 inline-flex items-center text-indigo-600 hover:text-indigo-800">
+                                        Create your first store
+                                        <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                        </svg>
+                                    </a>
+                                </div>
                             @endif
                         </div>
 

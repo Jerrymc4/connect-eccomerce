@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Store;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,50 +16,114 @@ use Illuminate\Support\Str;
 class RegisterController extends Controller
 {
     /**
-     * Display the registration view.
+     * Display the registration view (plans page).
      */
     public function show()
     {
-        return view('auth.register');
+        return view('auth.register-steps.plans');
     }
 
     /**
-     * Handle an incoming registration request.
+     * Display the account creation step.
      */
-    public function register(Request $request)
+    public function showAccountStep()
+    {
+        return view('auth.register-steps.account');
+    }
+
+    /**
+     * Display the store setup step.
+     */
+    public function showStoreStep()
+    {
+        if (!session()->has('registration_data')) {
+            return redirect()->route('register');
+        }
+
+        return view('auth.register-steps.store');
+    }
+
+    /**
+     * Handle account creation step.
+     */
+    public function createAccount(Request $request)
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'store_name' => ['required', 'string', 'max:255'],
+        ]);
+
+        // Store the account data in session
+        session(['registration_data' => [
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => $request->password,
+        ]]);
+
+        return redirect()->route('register.store');
+    }
+
+    /**
+     * Handle store creation and complete registration.
+     */
+    public function createStore(Request $request)
+    {
+        if (!session()->has('registration_data')) {
+            return redirect()->route('register');
+        }
+
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:1000'],
+            'business_name' => ['required', 'string', 'max:255'],
+            'tax_id' => ['nullable', 'string', 'max:50'],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'email' => ['required', 'string', 'email', 'max:255'],
+            'address_line1' => ['required', 'string', 'max:255'],
+            'address_line2' => ['nullable', 'string', 'max:255'],
+            'city' => ['required', 'string', 'max:100'],
+            'state' => ['required', 'string', 'max:100'],
+            'postal_code' => ['required', 'string', 'max:20'],
+            'country' => ['required', 'string', 'max:2'],
         ]);
 
         try {
-            // Explicitly use the central database connection
             DB::connection(config('tenancy.database.central_connection'))->beginTransaction();
 
-            // By default, new users are store owners
+            $registrationData = session('registration_data');
+
+            // Create the user
             $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
+                'name' => $registrationData['name'],
+                'email' => $registrationData['email'],
+                'password' => Hash::make($registrationData['password']),
                 'user_type' => User::TYPE_STORE_OWNER,
             ]);
 
             event(new Registered($user));
 
-            // Generate a subdomain from the store name
-            $storeName = $request->store_name;
-            $storeSlug = Str::slug($storeName);
+            // Generate store slug
+            $storeSlug = Str::slug($request->name);
             $storeDomain = $storeSlug . '.' . config('app.url_base', 'example.com');
 
-            // Create a store for the new user
-            $store = \App\Models\Store::createStore(
-                $storeName,
+            // Create the store
+            $store = Store::createStore(
+                $request->name,
                 $storeDomain,
-                $user->email,
+                $request->email,
                 [
+                    'description' => $request->description,
+                    'business_name' => $request->business_name,
+                    'tax_id' => $request->tax_id,
+                    'phone' => $request->phone,
+                    'email' => $request->email,
+                    'address_line1' => $request->address_line1,
+                    'address_line2' => $request->address_line2,
+                    'city' => $request->city,
+                    'state' => $request->state,
+                    'postal_code' => $request->postal_code,
+                    'country' => $request->country,
                     'owner_name' => $user->name,
                     'owner_email' => $user->email,
                     'status' => 'active',
@@ -71,20 +136,18 @@ class RegisterController extends Controller
 
             DB::connection(config('tenancy.database.central_connection'))->commit();
 
+            // Clear registration data from session
+            session()->forget('registration_data');
+
             Auth::login($user);
 
-            // Flash a success message
             session()->flash('success', 'Your store has been created successfully! You can customize it from your dashboard.');
 
-            // Redirect to home route which will handle redirection based on user type
             return redirect()->route('home');
         } catch (\Exception $e) {
             DB::connection(config('tenancy.database.central_connection'))->rollBack();
-            
-            // Log error for debugging
-            \Illuminate\Support\Facades\Log::error('Registration error: ' . $e->getMessage());
-            
-            return back()->withInput()->withErrors(['email' => $e->getMessage()]);
+            \Illuminate\Support\Facades\Log::error('Store creation error: ' . $e->getMessage());
+            return back()->withInput()->withErrors(['error' => 'Failed to create store. Please try again.']);
         }
     }
 } 

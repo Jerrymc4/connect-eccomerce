@@ -92,19 +92,14 @@ class GoogleController extends Controller
             \Illuminate\Support\Facades\DB::connection(config('tenancy.database.central_connection'))->commit();
 
             // Redirect based on user type
-            if ($user->isAdmin()) {
+            if ($user->user_type === \App\Models\User::TYPE_ADMIN) {
                 return redirect()->route('admin.dashboard');
-            } elseif ($user->isStoreOwner()) {
-                // If they have stores, check count
-                $stores = $user->ownedStores;
+            } elseif ($user->user_type === \App\Models\User::TYPE_STORE_OWNER) {
+                // Get the store if it exists
+                $store = $user->store;
                 
-                if ($stores->count() === 0) {
-                    // No stores yet, redirect to home route
-                    session()->flash('success', 'Your store has been created successfully! You can customize it from your dashboard.');
-                    return redirect()->route('home');
-                } elseif ($stores->count() === 1) {
-                    // One store, redirect to it
-                    $store = $stores->first();
+                if ($store) {
+                    // Get the store URL if available
                     $domain = $store->domains->first();
                     
                     if ($domain) {
@@ -112,8 +107,8 @@ class GoogleController extends Controller
                     }
                 }
                 
-                // Multiple stores, go to stores list
-                return redirect()->route('admin.stores.index');
+                // Otherwise, go to dashboard
+                return redirect()->route('home');
             }
             
             return redirect()->route('home');

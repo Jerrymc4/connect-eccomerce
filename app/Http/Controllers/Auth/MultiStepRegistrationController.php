@@ -46,11 +46,21 @@ class MultiStepRegistrationController extends Controller
     }
 
     /**
-     * Show the account creation form (Step 2).
+     * Backward compatibility method - redirects to showAccount.
      *
      * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
     public function showAccountForm()
+    {
+        return $this->showAccount();
+    }
+
+    /**
+     * Show the account creation form (Step 2).
+     *
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
+    public function showAccount()
     {
         if (!session('selected_plan')) {
             return redirect()->route('register.plans')
@@ -96,11 +106,14 @@ class MultiStepRegistrationController extends Controller
 
             event(new Registered($user));
 
-            // Log the user in
-            Auth::login($user);
-
-            // Store user ID in session for next steps
-            session(['registration_user_id' => $user->id]);
+            // Store registration data in session for next steps
+            session([
+                'registration_data' => [
+                    'user_id' => $user->id,
+                    'name' => $request->name,
+                    'email' => $request->email
+                ]
+            ]);
 
             DB::connection(config('tenancy.database.central_connection'))->commit();
 
@@ -123,9 +136,9 @@ class MultiStepRegistrationController extends Controller
      *
      * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
-    public function showBillingForm()
+    public function showBilling()
     {
-        if (!session('selected_plan') || !session('registration_user_id')) {
+        if (!session('registration_data') || !session('selected_plan')) {
             return redirect()->route('register.plans')
                 ->with('error', 'Please start the registration process again.');
         }
@@ -159,19 +172,34 @@ class MultiStepRegistrationController extends Controller
     }
 
     /**
-     * Show the store setup form (Step 4).
+     * Show the store setup form (Step 3).
      *
      * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
-    public function showStoreForm()
+    public function showStore(Request $request)
     {
-        if (!session('selected_plan') || !session('registration_user_id')) {
+        if (!session('registration_data')) {
             return redirect()->route('register.plans')
                 ->with('error', 'Please start the registration process again.');
         }
 
-        $plan = Plan::findOrFail(session('selected_plan'));
-        return view('auth.register-steps.store', compact('plan'));
+        // If we're coming back from a form submission, store the old input in session
+        if ($request->old()) {
+            session(['store_form_data' => $request->old()]);
+        }
+
+        return view('auth.register-steps.store');
+    }
+
+    /**
+     * Backward compatibility method - redirects to showStore.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
+    public function showStoreForm(Request $request)
+    {
+        return $this->showStore($request);
     }
 
     /**
@@ -182,39 +210,60 @@ class MultiStepRegistrationController extends Controller
      */
     public function createStore(Request $request)
     {
-        if (!session('selected_plan') || !session('registration_user_id')) {
+        if (!session('registration_data')) {
             return redirect()->route('register.plans')
                 ->with('error', 'Please start the registration process again.');
         }
 
-        $plan = Plan::findOrFail(session('selected_plan'));
-        $user = User::findOrFail(session('registration_user_id'));
-
-        $request->validate([
-            'store_name' => ['required', 'string', 'max:255'],
-        ]);
-
         try {
+            $validated = $request->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'description' => ['nullable', 'string', 'max:1000'],
+                'business_name' => ['required', 'string', 'max:255'],
+                'tax_id' => ['nullable', 'string', 'max:50'],
+                'phone' => ['nullable', 'string', 'max:20'],
+                'email' => ['required', 'string', 'email', 'max:255'],
+                'address_line1' => ['required', 'string', 'max:255'],
+                'address_line2' => ['nullable', 'string', 'max:255'],
+                'city' => ['required', 'string', 'max:100'],
+                'state' => ['required', 'string', 'max:100'],
+                'postal_code' => ['required', 'string', 'max:20'],
+                'country' => ['required', 'string', 'max:2'],
+            ]);
+
             DB::connection(config('tenancy.database.central_connection'))->beginTransaction();
 
-            // Generate a subdomain from the store name
-            $storeName = $request->store_name;
-            $storeSlug = Str::slug($storeName);
+            $registrationData = session('registration_data');
+            $user = User::findOrFail($registrationData['user_id']);
+
+            // Store form data in session before proceeding
+            session(['store_form_data' => $request->all()]);
+
+            // Generate store slug
+            $storeSlug = Str::slug($request->name);
             $storeDomain = $storeSlug . '.' . config('app.url_base', 'example.com');
 
-            // Create a store for the user with the selected plan
+            // Create the store
             $store = Store::createStore(
-                $storeName,
+                $request->name,
                 $storeDomain,
-                $user->email,
+                $request->email,
                 [
+                    'description' => $request->description,
+                    'business_name' => $request->business_name,
+                    'tax_id' => $request->tax_id,
+                    'phone' => $request->phone,
+                    'email' => $request->email,
+                    'address_line1' => $request->address_line1,
+                    'address_line2' => $request->address_line2,
+                    'city' => $request->city,
+                    'state' => $request->state,
+                    'postal_code' => $request->postal_code,
+                    'country' => $request->country,
                     'owner_name' => $user->name,
                     'owner_email' => $user->email,
                     'status' => 'active',
                     'slug' => $storeSlug,
-                    'plan_id' => $plan->id,
-                    'subscription_status' => $plan->price <= 0 ? 'active' : 'pending',
-                    'setup_status' => 'incomplete',
                 ]
             );
 
@@ -223,30 +272,35 @@ class MultiStepRegistrationController extends Controller
 
             DB::connection(config('tenancy.database.central_connection'))->commit();
 
-            // Clear registration session data
-            session()->forget(['selected_plan', 'registration_user_id']);
+            // Clear registration data from session
+            session()->forget(['registration_data', 'selected_plan', 'store_form_data']);
 
-            // Flash a success message
-            session()->flash('success', 'Your store has been created successfully! Let\'s set up your store.');
+            // Now log in the user
+            Auth::login($user);
 
-            // Redirect to the onboarding process
-            return redirect()->route('store.onboarding');
+            session()->flash('success', 'Your store has been created successfully! You can customize it from your dashboard.');
+
+            return redirect()->route('home');
         } catch (\Exception $e) {
             DB::connection(config('tenancy.database.central_connection'))->rollBack();
+            \Illuminate\Support\Facades\Log::error('Store creation error: ' . $e->getMessage());
             
-            return back()->withInput()->withErrors(['store_name' => $e->getMessage()]);
+            // Store form data in session before returning with error
+            session(['store_form_data' => $request->all()]);
+            
+            return back()->withInput()->withErrors(['error' => 'Failed to create store. Please try again.']);
         }
     }
 
     /**
      * Show the store onboarding page (Final step).
      *
-     * @return \Illuminate\View\View
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
     public function showOnboarding()
     {
         $user = Auth::user();
-        $store = $user->ownedStores()->latest()->first();
+        $store = $user->store;
 
         if (!$store) {
             return redirect()->route('home');
@@ -264,7 +318,7 @@ class MultiStepRegistrationController extends Controller
     public function completeOnboarding(Request $request)
     {
         $user = Auth::user();
-        $store = $user->ownedStores()->latest()->first();
+        $store = $user->store;
 
         if (!$store) {
             return redirect()->route('home');
