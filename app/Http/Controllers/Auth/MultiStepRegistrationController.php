@@ -19,7 +19,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules;
 
-class MultiStepRegistrationController extends Controller
+class  MultiStepRegistrationController extends Controller
 {
     public function __construct(
         private RegistrationService $registrationService
@@ -236,9 +236,9 @@ class MultiStepRegistrationController extends Controller
             // Now log in the user
             Auth::login($user);
 
-            session()->flash('success', 'Your store has been created successfully! You can customize it from your dashboard.');
+            session()->flash('success', 'Your store has been created successfully! Welcome to your dashboard.');
 
-            return redirect()->route('home');
+            return redirect()->route('store.dashboard', ['store' => $store->slug]);
         } catch (\Exception $e) {
             Log::error('Store creation error: ' . $e->getMessage());
             return back()->withInput()->withErrors(['error' => 'Failed to create store. Please try again.']);

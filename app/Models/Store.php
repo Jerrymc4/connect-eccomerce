@@ -7,6 +7,9 @@ use Stancl\Tenancy\Contracts\TenantWithDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDomains;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Artisan;
 
 /**
  * Store represents an ecommerce store in our multi-tenant system.
@@ -75,6 +78,7 @@ class Store extends BaseTenant implements TenantWithDatabase
         'owner_name',
         'owner_email',
         'data',
+        'tenancy_db_name',
     ];
     
     /**
@@ -95,7 +99,7 @@ class Store extends BaseTenant implements TenantWithDatabase
      */
     public function getRouteKeyName()
     {
-        return 'id';
+        return 'slug';
     }
     
     /**
@@ -160,25 +164,45 @@ class Store extends BaseTenant implements TenantWithDatabase
      */
     public static function createStore(string $name, string $domain, string $email, array $additionalData = []): self
     {
-        // Create the store with basic data
-        $store = new self();
-        $store->name = $name;
-        $store->slug = Str::slug($name);
-        $store->owner_email = $email;
-        
-        // Apply additional data if provided
-        foreach ($additionalData as $key => $value) {
-            if (in_array($key, (new self())->fillable)) {
-                $store->{$key} = $value;
-            }
+        try {
+            DB::beginTransaction();
+            
+            // Insert with explicit columns
+            $id = DB::table('stores')->insertGetId([
+                'name' => $name,
+                'slug' => Str::slug($name),
+                'domain' => $name,
+                'email' => $email,
+                'owner_email' => $email,
+                'status' => 'active',
+                'business_name' => $additionalData['business_name'] ?? null,
+                'tax_id' => $additionalData['tax_id'] ?? null,
+                'phone' => $additionalData['phone'] ?? null,
+                'address_line1' => $additionalData['address_line1'] ?? null,
+                'address_line2' => $additionalData['address_line2'] ?? null,
+                'city' => $additionalData['city'] ?? null,
+                'state' => $additionalData['state'] ?? null,
+                'postal_code' => $additionalData['postal_code'] ?? null,
+                'country' => $additionalData['country'] ?? null,
+                'description' => $additionalData['description'] ?? null,
+                'owner_name' => $additionalData['owner_name'] ?? null,
+                'data' => json_encode($additionalData),
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+            
+            $store = self::find($id);
+            $store->tenancy_db_name = 'store_' . $store->id;
+            $store->save();
+            
+            DB::commit();
+            
+            return $store;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to create store: ' . $e->getMessage());
+            throw $e;
         }
-        
-        $store->save();
-        
-        // Create domain for the store
-        $store->domains()->create(['domain' => $domain]);
-        
-        return $store;
     }
 
     /**

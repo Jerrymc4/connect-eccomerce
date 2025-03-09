@@ -70,28 +70,13 @@ class RegistrationService
 
             $storeSlug = Str::slug($data->storeData['name']);
             $storeDomain = $storeSlug . '.' . config('app.url_base', 'example.com');
+            xdebug_break();
 
             $store = $this->storeRepository->create(
                 name: $data->storeData['name'],
                 domain: $storeDomain,
                 email: $data->storeData['email'],
-                data: [
-                    'description' => $data->storeData['description'],
-                    'business_name' => $data->storeData['business_name'],
-                    'tax_id' => $data->storeData['tax_id'],
-                    'phone' => $data->storeData['phone'],
-                    'email' => $data->storeData['email'],
-                    'address_line1' => $data->storeData['address_line1'],
-                    'address_line2' => $data->storeData['address_line2'],
-                    'city' => $data->storeData['city'],
-                    'state' => $data->storeData['state'],
-                    'postal_code' => $data->storeData['postal_code'],
-                    'country' => $data->storeData['country'],
-                    'owner_name' => $user->name,
-                    'owner_email' => $user->email,
-                    'status' => 'active',
-                    'slug' => $storeSlug,
-                ]
+                data: $data->storeData
             );
 
             $store->updateOwner($user);
