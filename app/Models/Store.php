@@ -99,7 +99,7 @@ class Store extends BaseTenant implements TenantWithDatabase
      */
     public function getRouteKeyName()
     {
-        return 'id';
+        return 'slug';
     }
     
     /**

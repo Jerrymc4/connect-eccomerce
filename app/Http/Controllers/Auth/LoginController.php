@@ -34,9 +34,9 @@ class LoginController extends Controller
             // Redirect based on user type
             $user = Auth::user();
             
-            if ($user->user_type === User::TYPE_ADMIN) {
-                return redirect()->intended(route('home'));
-            } elseif ($user->user_type === User::TYPE_STORE_OWNER) {
+            if ($user->user_type === \App\Models\User::TYPE_ADMIN) {
+                return redirect()->intended(route('admin.dashboard'));
+            } elseif ($user->user_type === \App\Models\User::TYPE_STORE_OWNER) {
                 // Get the store if it exists
                 $store = $user->store;
                 
@@ -50,7 +50,7 @@ class LoginController extends Controller
                 }
                 
                 // Otherwise, go to dashboard
-                return redirect()->intended(route('home'));
+                return redirect()->intended(route('admin.dashboard'));
             }
 
             return redirect()->intended(route('home'));
