@@ -5,10 +5,10 @@
     <div class="flex justify-between items-center mb-8">
         <h1 class="text-3xl font-bold">{{ $store->name }} Dashboard</h1>
         <div class="flex space-x-4">
-            <a href="{{ route('store.settings') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+            <a href="{{ route('store.settings', ['store' => $store->slug]) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                 <x-icon name="settings" class="mr-2 h-5 w-5" /> Settings
             </a>
-            <a href="{{ route('store.products.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700">
+            <a href="{{ route('store.products.create', ['store' => $store->slug]) }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700">
                 <x-icon name="plus" class="mr-2 h-5 w-5" /> Add Product
             </a>
         </div>
