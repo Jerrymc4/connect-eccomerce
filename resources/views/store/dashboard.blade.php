@@ -5,11 +5,11 @@
     <div class="flex justify-between items-center mb-8">
         <h1 class="text-3xl font-bold">{{ $store->name }} Dashboard</h1>
         <div class="flex space-x-4">
-            <a href="{{ route('store.settings', ['store' => $store->slug]) }}" class="btn-secondary">
-                <i class="fas fa-cog"></i> Settings
+            <a href="{{ route('store.settings', ['store' => $store->slug]) }}" class="btn-secondary inline-flex items-center">
+                <x-icons.cog class="mr-2" /> Settings
             </a>
-            <a href="{{ route('store.products.create', ['store' => $store->slug]) }}" class="btn-primary">
-                <i class="fas fa-plus"></i> Add Product
+            <a href="{{ route('store.products.create', ['store' => $store->slug]) }}" class="btn-primary inline-flex items-center">
+                <x-icons.plus class="mr-2" /> Add Product
             </a>
         </div>
     </div>
@@ -59,19 +59,19 @@
             <div class="p-6">
                 <div class="grid grid-cols-2 gap-4">
                     <a href="{{ route('store.products.index', ['store' => $store->slug]) }}" class="p-4 border rounded-lg text-center hover:bg-gray-50">
-                        <i class="fas fa-box text-2xl mb-2"></i>
+                        <x-icons.box class="h-8 w-8 mx-auto mb-2" />
                         <p>Manage Products</p>
                     </a>
                     <a href="{{ route('store.orders.index', ['store' => $store->slug]) }}" class="p-4 border rounded-lg text-center hover:bg-gray-50">
-                        <i class="fas fa-shopping-cart text-2xl mb-2"></i>
+                        <x-icons.shopping-cart class="h-8 w-8 mx-auto mb-2" />
                         <p>View Orders</p>
                     </a>
                     <a href="{{ route('store.customers.index', ['store' => $store->slug]) }}" class="p-4 border rounded-lg text-center hover:bg-gray-50">
-                        <i class="fas fa-users text-2xl mb-2"></i>
+                        <x-icons.users class="h-8 w-8 mx-auto mb-2" />
                         <p>Customers</p>
                     </a>
                     <a href="{{ route('store.reports', ['store' => $store->slug]) }}" class="p-4 border rounded-lg text-center hover:bg-gray-50">
-                        <i class="fas fa-chart-bar text-2xl mb-2"></i>
+                        <x-icons.chart-bar class="h-8 w-8 mx-auto mb-2" />
                         <p>Reports</p>
                     </a>
                 </div>
