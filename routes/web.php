@@ -22,9 +22,22 @@ Route::get('/', function () {
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {
-    // Registration
-    Route::get('/register', [App\Http\Controllers\Auth\RegisterController::class, 'show'])->name('register');
-    Route::post('/register', [App\Http\Controllers\Auth\RegisterController::class, 'register']);
+    // Multi-Step Registration
+    Route::get('/register', function() {
+        return redirect()->route('register.plans');
+    })->name('register');
+    
+    Route::get('/register/plans', [App\Http\Controllers\Auth\MultiStepRegistrationController::class, 'showPlans'])->name('register.plans');
+    Route::post('/register/plans', [App\Http\Controllers\Auth\MultiStepRegistrationController::class, 'selectPlan'])->name('register.select-plan');
+    
+    Route::get('/register/account', [App\Http\Controllers\Auth\MultiStepRegistrationController::class, 'showAccountForm'])->name('register.account');
+    Route::post('/register/account', [App\Http\Controllers\Auth\MultiStepRegistrationController::class, 'createAccount'])->name('register.create-account');
+    
+    Route::get('/register/billing', [App\Http\Controllers\Auth\MultiStepRegistrationController::class, 'showBillingForm'])->name('register.billing');
+    Route::post('/register/billing', [App\Http\Controllers\Auth\MultiStepRegistrationController::class, 'processBilling'])->name('register.process-billing');
+    
+    Route::get('/register/store', [App\Http\Controllers\Auth\MultiStepRegistrationController::class, 'showStoreForm'])->name('register.store');
+    Route::post('/register/store', [App\Http\Controllers\Auth\MultiStepRegistrationController::class, 'createStore'])->name('register.create-store');
 
     // Login
     Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'show'])->name('login');
@@ -41,6 +54,10 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     // Logout
     Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');
+    
+    // Onboarding Routes
+    Route::get('/store/onboarding', [App\Http\Controllers\Auth\MultiStepRegistrationController::class, 'showOnboarding'])->name('store.onboarding');
+    Route::post('/store/onboarding/complete', [App\Http\Controllers\Auth\MultiStepRegistrationController::class, 'completeOnboarding'])->name('store.onboarding.complete');
     
     // Home route after authentication
     Route::get('/home', function () {
@@ -96,15 +113,14 @@ Route::prefix('stores')->group(function () {
     // Create a new store (action)
     Route::post('/', function () {
         $validated = request()->validate([
-            'id' => 'required|string|max:255|unique:tenants',
             'name' => 'required|string|max:255',
             'domain' => 'required|string|max:255|unique:domains,domain',
         ]);
         
         $store = Store::createStore(
-            $validated['id'], 
             $validated['name'],
-            $validated['domain']
+            $validated['domain'],
+            \Illuminate\Support\Facades\Auth::user()->email ?? 'admin@example.com'  // Use authenticated user's email or fallback
         );
         
         return redirect()->route('stores.index')

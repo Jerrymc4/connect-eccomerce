@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class RegisterController extends Controller
 {
@@ -29,24 +31,60 @@ class RegisterController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'store_name' => ['required', 'string', 'max:255'],
         ]);
 
-        // By default, new users are store owners
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'user_type' => User::TYPE_STORE_OWNER,
-        ]);
+        try {
+            // Explicitly use the central database connection
+            DB::connection(config('tenancy.database.central_connection'))->beginTransaction();
 
-        event(new Registered($user));
+            // By default, new users are store owners
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'user_type' => User::TYPE_STORE_OWNER,
+            ]);
 
-        Auth::login($user);
+            event(new Registered($user));
 
-        // Flash a success message
-        session()->flash('success', 'Your store has been created successfully! You can customize it from your dashboard.');
+            // Generate a subdomain from the store name
+            $storeName = $request->store_name;
+            $storeSlug = Str::slug($storeName);
+            $storeDomain = $storeSlug . '.' . config('app.url_base', 'example.com');
 
-        // Redirect to home route which will handle redirection based on user type
-        return redirect()->route('home');
+            // Create a store for the new user
+            $store = \App\Models\Store::createStore(
+                $storeName,
+                $storeDomain,
+                $user->email,
+                [
+                    'owner_name' => $user->name,
+                    'owner_email' => $user->email,
+                    'status' => 'active',
+                    'slug' => $storeSlug,
+                ]
+            );
+
+            // Link store to user
+            $store->updateOwner($user);
+
+            DB::connection(config('tenancy.database.central_connection'))->commit();
+
+            Auth::login($user);
+
+            // Flash a success message
+            session()->flash('success', 'Your store has been created successfully! You can customize it from your dashboard.');
+
+            // Redirect to home route which will handle redirection based on user type
+            return redirect()->route('home');
+        } catch (\Exception $e) {
+            DB::connection(config('tenancy.database.central_connection'))->rollBack();
+            
+            // Log error for debugging
+            \Illuminate\Support\Facades\Log::error('Registration error: ' . $e->getMessage());
+            
+            return back()->withInput()->withErrors(['email' => $e->getMessage()]);
+        }
     }
 } 

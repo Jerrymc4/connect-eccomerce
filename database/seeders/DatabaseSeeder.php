@@ -13,11 +13,23 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Seed subscription plans
+        $this->call(PlanSeeder::class);
+
         // User::factory(10)->create();
 
+        // Create an admin user
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Admin User',
+            'email' => 'admin@example.com',
+            'user_type' => User::TYPE_ADMIN,
+        ]);
+
+        // Create a test store owner
+        User::factory()->create([
+            'name' => 'Store Owner',
+            'email' => 'owner@example.com',
+            'user_type' => User::TYPE_STORE_OWNER,
         ]);
     }
 }

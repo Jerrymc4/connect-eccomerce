@@ -65,7 +65,12 @@ class Store extends BaseTenant implements TenantWithDatabase
         'country',
         'logo_url',
         'plan',
+        'plan_id',
+        'subscription_status',
         'subscription_ends_at',
+        'stripe_customer_id',
+        'stripe_subscription_id',
+        'setup_status',
         'owner_id',
         'owner_name',
         'owner_email',
@@ -80,6 +85,7 @@ class Store extends BaseTenant implements TenantWithDatabase
     protected $casts = [
         'data' => 'array',
         'subscription_ends_at' => 'datetime',
+        'setup_status' => 'string',
     ];
     
     /**
@@ -195,5 +201,52 @@ class Store extends BaseTenant implements TenantWithDatabase
         $this->owner_name = $user->name;
         $this->owner_email = $user->email;
         $this->save();
+    }
+
+    /**
+     * Get the subscription plan of the store.
+     */
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class);
+    }
+
+    /**
+     * Check if the store setup is complete.
+     * 
+     * @return bool
+     */
+    public function isSetupComplete(): bool
+    {
+        return $this->setup_status === 'complete';
+    }
+
+    /**
+     * Mark the store setup as complete.
+     * 
+     * @return void
+     */
+    public function markSetupComplete(): void
+    {
+        $this->setup_status = 'complete';
+        $this->save();
+    }
+
+    /**
+     * Check if the store has an active subscription.
+     * 
+     * @return bool
+     */
+    public function hasActiveSubscription(): bool
+    {
+        if ($this->subscription_status === 'active') {
+            return true;
+        }
+        
+        if ($this->subscription_status === 'trial' && $this->subscription_ends_at && $this->subscription_ends_at->isFuture()) {
+            return true;
+        }
+        
+        return false;
     }
 }
