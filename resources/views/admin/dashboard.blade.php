@@ -82,9 +82,7 @@
                                     <div class="mt-2">
                                         <a href="{{ $store->domains->first() ? 'https://' . $store->domains->first()->domain : '#' }}" class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800">
                                             <span>Manage Store</span>
-                                            <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                            </svg>
+                                            <x-icon name="chevron-right" class="ml-1 w-4 h-4" />
                                         </a>
                                     </div>
                                 </div>
@@ -93,9 +91,7 @@
                                     <p>You haven't created a store yet.</p>
                                     <a href="{{ route('register.store') }}" class="mt-2 inline-flex items-center text-indigo-600 hover:text-indigo-800">
                                         Create your first store
-                                        <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                        </svg>
+                                        <x-icon name="chevron-right" class="ml-1 w-4 h-4" />
                                     </a>
                                 </div>
                             @endif
@@ -111,8 +107,9 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="#" class="block p-3 bg-white rounded shadow-sm hover:bg-gray-50">
-                                        <span class="font-medium">View all stores</span>
+                                    <a href="#" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                                        View all
+                                        <x-icon name="chevron-right" class="ml-1 w-4 h-4" />
                                     </a>
                                 </li>
                                 <li>

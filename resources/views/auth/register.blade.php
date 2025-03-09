@@ -56,14 +56,19 @@
         </div>
 
         <div>
-            <label for="store_name" class="block text-sm font-medium text-gray-700">Store Name</label>
-            <div class="mt-1">
+            <label for="store_name" class="block text-sm font-medium text-gray-700 mb-1">Store Name</label>
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <x-icon name="shopping-bag" class="h-5 w-5 text-gray-400" />
+                </div>
                 <input id="store_name" name="store_name" type="text" required value="{{ old('store_name') }}" 
-                    class="admin-input @error('store_name') border-red-500 @enderror">
+                    class="block w-full pl-10 rounded-lg border-gray-300 focus:ring-primary-500 focus:border-primary-500 sm:text-sm
+                        @error('store_name') border-red-300 text-red-900 placeholder-red-300 @enderror"
+                    placeholder="Your store name">
                 <p class="mt-1 text-xs text-gray-500">This will be the name of your store. You can change it later.</p>
             </div>
             @error('store_name')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
             @enderror
         </div>
 
@@ -87,13 +92,10 @@
         </div>
 
         <div class="mt-6">
-            <a href="{{ route('auth.google') }}" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M23.7663 12.2764C23.7663 11.4607 23.7001 10.6406 23.559 9.83807H12.2402V14.4591H18.722C18.453 15.9494 17.5888 17.2678 16.3233 18.1056V21.1039H20.1903C22.4611 19.0139 23.7663 15.9274 23.7663 12.2764Z" fill="#4285F4"/>
-                    <path d="M12.2401 24.0008C15.4766 24.0008 18.2059 22.9382 20.1945 21.1039L16.3276 18.1055C15.2517 18.8375 13.8627 19.252 12.2445 19.252C9.11388 19.252 6.45946 17.1399 5.50705 14.3003H1.5166V17.3912C3.55371 21.4434 7.7029 24.0008 12.2401 24.0008Z" fill="#34A853"/>
-                    <path d="M5.50253 14.3003C5.00431 12.8099 5.00431 11.1961 5.50253 9.70575V6.61481H1.51649C-0.18551 10.0056 -0.18551 14.0004 1.51649 17.3912L5.50253 14.3003Z" fill="#FBBC04"/>
-                    <path d="M12.2401 4.74966C13.9509 4.7232 15.6044 5.36697 16.8434 6.54867L20.2695 3.12262C18.1001 1.0855 15.2208 -0.034466 12.2401 0.000808666C7.7029 0.000808666 3.55371 2.55822 1.5166 6.61481L5.50264 9.70575C6.45064 6.86173 9.10947 4.74966 12.2401 4.74966Z" fill="#EA4335"/>
-                </svg>
+            <a href="{{ route('auth.google') }}" 
+                class="w-full inline-flex justify-center items-center py-3 px-4 border border-gray-300 rounded-xl shadow-sm 
+                    bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors duration-200">
+                <x-icon name="chrome" class="h-5 w-5 mr-2" />
                 Sign up with Google
             </a>
         </div>

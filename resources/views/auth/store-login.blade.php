@@ -13,9 +13,14 @@
 
         <div>
             <label for="email" class="block text-sm font-medium text-gray-700">Email address</label>
-            <div class="mt-1">
-                <input id="email" name="email" type="email" autocomplete="email" required value="{{ old('email') }}" 
-                    class="admin-input @error('email') border-red-500 @enderror">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <x-icon name="mail" class="h-5 w-5 text-gray-400" />
+                </div>
+                <input id="email" name="email" type="email" autocomplete="email" required value="{{ old('email') }}"
+                    class="block w-full pl-10 rounded-lg border-gray-300 focus:ring-primary-500 focus:border-primary-500 sm:text-sm
+                        @error('email') border-red-300 text-red-900 placeholder-red-300 @enderror"
+                    placeholder="Email address">
             </div>
             @error('email')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -24,9 +29,14 @@
 
         <div>
             <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-            <div class="mt-1">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <x-icon name="lock" class="h-5 w-5 text-gray-400" />
+                </div>
                 <input id="password" name="password" type="password" autocomplete="current-password" required
-                    class="admin-input @error('password') border-red-500 @enderror">
+                    class="block w-full pl-10 rounded-lg border-gray-300 focus:ring-primary-500 focus:border-primary-500 sm:text-sm
+                        @error('password') border-red-300 text-red-900 placeholder-red-300 @enderror"
+                    placeholder="Password">
             </div>
             @error('password')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
