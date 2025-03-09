@@ -13,14 +13,14 @@
             <div class="flex items-center justify-center space-x-4">
                 <div class="flex items-center">
                     <div class="w-8 h-8 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center">
-                        <x-icons.check-circle />
+                        <x-icon name="check-circle" class="h-5 w-5" />
                     </div>
                     <span class="ml-2 text-sm font-medium text-gray-900">Plan</span>
                 </div>
                 <div class="flex-grow border-t-2 border-primary-100"></div>
                 <div class="flex items-center">
                     <div class="w-8 h-8 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center">
-                        <x-icons.check-circle />
+                        <x-icon name="check-circle" class="h-5 w-5" />
                     </div>
                     <span class="ml-2 text-sm font-medium text-gray-900">Account</span>
                 </div>
