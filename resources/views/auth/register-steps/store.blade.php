@@ -13,14 +13,18 @@
             <div class="flex items-center justify-center space-x-4">
                 <div class="flex items-center">
                     <div class="w-8 h-8 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center">
-                        <x-icons.check-circle />
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
                     </div>
                     <span class="ml-2 text-sm font-medium text-gray-900">Plan</span>
                 </div>
                 <div class="flex-grow border-t-2 border-primary-100"></div>
                 <div class="flex items-center">
                     <div class="w-8 h-8 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center">
-                        <x-icons.check-circle />
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
                     </div>
                     <span class="ml-2 text-sm font-medium text-gray-900">Account</span>
                 </div>
@@ -148,7 +152,9 @@
                     <div class="mt-5 md:col-span-2 md:mt-0">
                         <div class="flex items-center">
                             <span class="h-12 w-12 overflow-hidden rounded-full bg-gray-100">
-                                <x-icons.user-circle class="text-gray-300" />
+                                <svg class="h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
                             </span>
                             <input type="file" name="logo" id="logo" accept="image/*" class="ml-5 rounded-md border border-gray-300 bg-white py-2 px-3 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
                         </div>

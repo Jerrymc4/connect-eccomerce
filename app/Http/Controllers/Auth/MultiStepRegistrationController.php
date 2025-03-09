@@ -236,9 +236,9 @@ class  MultiStepRegistrationController extends Controller
             // Now log in the user
             Auth::login($user);
 
-            session()->flash('success', 'Your store has been created successfully! Welcome to your dashboard.');
+            session()->flash('success', 'Your store has been created successfully! You can customize it from your dashboard.');
 
-            return redirect()->route('store.dashboard', ['store' => $store->slug]);
+            return redirect()->route('home');
         } catch (\Exception $e) {
             Log::error('Store creation error: ' . $e->getMessage());
             return back()->withInput()->withErrors(['error' => 'Failed to create store. Please try again.']);

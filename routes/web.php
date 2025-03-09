@@ -126,23 +126,3 @@ Route::prefix('stores')->group(function () {
             ->with('success', 'Store created successfully!');
     })->name('stores.store');
 });
-
-// Store Routes
-Route::middleware(['auth'])->group(function () {
-    Route::prefix('{store}')->group(function () {
-        Route::get('/dashboard', [App\Http\Controllers\Store\DashboardController::class, 'index'])->name('store.dashboard');
-        Route::get('/settings', [App\Http\Controllers\Store\SettingsController::class, 'index'])->name('store.settings');
-        
-        // Products
-        Route::resource('products', App\Http\Controllers\Store\ProductController::class)->names('store.products');
-        
-        // Orders
-        Route::resource('orders', App\Http\Controllers\Store\OrderController::class)->names('store.orders');
-        
-        // Customers
-        Route::resource('customers', App\Http\Controllers\Store\CustomerController::class)->names('store.customers');
-        
-        // Reports
-        Route::get('/reports', [App\Http\Controllers\Store\ReportController::class, 'index'])->name('store.reports');
-    });
-});

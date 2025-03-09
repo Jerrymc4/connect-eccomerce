@@ -29,7 +29,9 @@
                         <div class="px-4 py-5 sm:p-6">
                             <div class="aspect-w-16 aspect-h-9 bg-gray-50 rounded-lg overflow-hidden">
                                 <div class="flex items-center justify-center h-64 bg-blue-50 text-blue-500">
-                                    <x-icons.shopping-bag class="h-24 w-24" />
+                                    <svg class="h-24 w-24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                    </svg>
                                 </div>
                             </div>
                         </div>
@@ -94,7 +96,9 @@
                     <!-- Feature 1 -->
                     <div class="relative">
                         <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-600 text-white">
-                            <x-icons.globe />
+                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                            </svg>
                         </div>
                         <div class="ml-16">
                             <h3 class="text-lg leading-6 font-medium text-gray-900">Multi-store Platform</h3>
@@ -107,7 +111,9 @@
                     <!-- Feature 2 -->
                     <div class="relative">
                         <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-600 text-white">
-                            <x-icons.credit-card />
+                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                            </svg>
                         </div>
                         <div class="ml-16">
                             <h3 class="text-lg leading-6 font-medium text-gray-900">Secure Payments</h3>
@@ -120,7 +126,9 @@
                     <!-- Feature 3 -->
                     <div class="relative">
                         <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-600 text-white">
-                            <x-icons.chat />
+                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                            </svg>
                         </div>
                         <div class="ml-16">
                             <h3 class="text-lg leading-6 font-medium text-gray-900">Customer Management</h3>
@@ -133,7 +141,9 @@
                     <!-- Feature 4 -->
                     <div class="relative">
                         <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-600 text-white">
-                            <x-icons.chart-bar />
+                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
                         </div>
                         <div class="ml-16">
                             <h3 class="text-lg leading-6 font-medium text-gray-900">Analytics & Reporting</h3>
@@ -173,18 +183,24 @@
                         
                         <ul role="list" class="mt-6 space-y-6">
                             <li class="flex">
-                                <x-icons.check class="flex-shrink-0 text-blue-500" />
+                                <svg class="flex-shrink-0 w-6 h-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
                                 <span class="ml-3 text-gray-500">Up to 10 products</span>
                             </li>
                             <li class="flex">
-                                <x-icons.check class="flex-shrink-0 text-blue-500" />
+                                <svg class="flex-shrink-0 w-6 h-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
                                 <span class="ml-3 text-gray-500">Basic online store</span>
-                            </li>
+                        </li>
                             <li class="flex">
-                                <x-icons.check class="flex-shrink-0 text-blue-500" />
+                                <svg class="flex-shrink-0 w-6 h-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
                                 <span class="ml-3 text-gray-500">Email support</span>
-                            </li>
-                        </ul>
+                        </li>
+                    </ul>
                     </div>
                     
                     <a href="{{ route('register') }}" class="mt-8 block w-full bg-blue-50 border border-blue-100 rounded-md py-2 text-sm font-semibold text-blue-600 text-center hover:bg-blue-100">
@@ -209,22 +225,30 @@
                         
                         <ul role="list" class="mt-6 space-y-6">
                             <li class="flex">
-                                <x-icons.check class="flex-shrink-0 text-blue-500" />
+                                <svg class="flex-shrink-0 w-6 h-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
                                 <span class="ml-3 text-gray-500">Up to 100 products</span>
                             </li>
                             <li class="flex">
-                                <x-icons.check class="flex-shrink-0 text-blue-500" />
+                                <svg class="flex-shrink-0 w-6 h-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
                                 <span class="ml-3 text-gray-500">Advanced inventory</span>
                             </li>
                             <li class="flex">
-                                <x-icons.check class="flex-shrink-0 text-blue-500" />
+                                <svg class="flex-shrink-0 w-6 h-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
                                 <span class="ml-3 text-gray-500">Custom domain support</span>
                             </li>
                             <li class="flex">
-                                <x-icons.check class="flex-shrink-0 text-blue-500" />
+                                <svg class="flex-shrink-0 w-6 h-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
                                 <span class="ml-3 text-gray-500">Priority support</span>
-                            </li>
-                        </ul>
+                        </li>
+                    </ul>
                     </div>
                     
                     <a href="{{ route('register') }}" class="mt-8 block w-full bg-blue-600 border border-transparent rounded-md py-2 text-sm font-semibold text-white text-center hover:bg-blue-700">
@@ -244,19 +268,27 @@
                         
                         <ul role="list" class="mt-6 space-y-6">
                             <li class="flex">
-                                <x-icons.check class="flex-shrink-0 text-blue-500" />
+                                <svg class="flex-shrink-0 w-6 h-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
                                 <span class="ml-3 text-gray-500">Unlimited products</span>
                             </li>
                             <li class="flex">
-                                <x-icons.check class="flex-shrink-0 text-blue-500" />
+                                <svg class="flex-shrink-0 w-6 h-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
                                 <span class="ml-3 text-gray-500">Advanced analytics</span>
                             </li>
                             <li class="flex">
-                                <x-icons.check class="flex-shrink-0 text-blue-500" />
+                                <svg class="flex-shrink-0 w-6 h-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
                                 <span class="ml-3 text-gray-500">Multiple team members</span>
                             </li>
                             <li class="flex">
-                                <x-icons.check class="flex-shrink-0 text-blue-500" />
+                                <svg class="flex-shrink-0 w-6 h-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
                                 <span class="ml-3 text-gray-500">24/7 phone support</span>
                             </li>
                         </ul>
@@ -268,7 +300,7 @@
                 </div>
             </div>
         </div>
-    </div>
+        </div>
 
     <!-- CTA Section -->
     <div class="bg-blue-700">

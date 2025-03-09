@@ -26,9 +26,6 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Add route model binding for store parameter
-        Route::model('store', \App\Models\Store::class);
-
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });

@@ -15,7 +15,9 @@
             <div class="flex-1 relative">
                 <div class="flex items-center">
                     <div class="flex items-center justify-center w-10 h-10 bg-green-500 rounded-full">
-                        <x-icons.check class="w-6 h-6 text-white" />
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
                     </div>
                     <div class="ml-3">
                         <p class="text-sm font-medium text-green-600">Plan</p>
@@ -61,7 +63,9 @@
                 <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
                 <div class="relative rounded-lg shadow-sm">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <x-icons.user class="text-gray-400" />
+                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
                     </div>
                     <input id="name" type="text" name="name" value="{{ old('name') }}" required autofocus autocomplete="name"
                         class="block w-full pl-10 rounded-lg border-gray-300 focus:ring-primary-500 focus:border-primary-500 sm:text-sm
@@ -78,7 +82,9 @@
                 <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
                 <div class="relative rounded-lg shadow-sm">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <x-icons.mail class="text-gray-400" />
+                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
                     </div>
                     <input id="email" type="email" name="email" value="{{ old('email') }}" required autocomplete="email"
                         class="block w-full pl-10 rounded-lg border-gray-300 focus:ring-primary-500 focus:border-primary-500 sm:text-sm
@@ -95,7 +101,9 @@
                 <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
                 <div class="relative rounded-lg shadow-sm">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <x-icons.lock class="text-gray-400" />
+                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
                     </div>
                     <input id="password" type="password" name="password" required autocomplete="new-password"
                         class="block w-full pl-10 rounded-lg border-gray-300 focus:ring-primary-500 focus:border-primary-500 sm:text-sm
@@ -112,7 +120,9 @@
                 <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
                 <div class="relative rounded-lg shadow-sm">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <x-icons.lock class="text-gray-400" />
+                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
                     </div>
                     <input id="password_confirmation" type="password" name="password_confirmation" required autocomplete="new-password"
                         class="block w-full pl-10 rounded-lg border-gray-300 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
@@ -123,7 +133,9 @@
             <div class="flex items-center justify-between">
                 <a href="{{ route('register.plans') }}" 
                     class="inline-flex items-center text-sm text-gray-600 hover:text-gray-900">
-                    <x-icons.chevron-left class="mr-2" />
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
                     Back to Plans
                 </a>
                 <button type="submit" 
