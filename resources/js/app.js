@@ -1,11 +1,25 @@
 import './bootstrap';
 import Alpine from 'alpinejs';
+import feather from 'feather-icons';
 
 // Make Alpine available globally
 window.Alpine = Alpine;
 
 // Initialize Alpine
 Alpine.start();
+
+// Initialize Feather Icons
+document.addEventListener('DOMContentLoaded', () => {
+    feather.replace();
+});
+
+// Re-initialize Feather Icons when Alpine updates the DOM
+document.addEventListener('alpine:initialized', () => {
+    feather.replace();
+});
+
+// Make Feather available globally
+window.feather = feather;
 
 // Custom admin JS
 document.addEventListener('DOMContentLoaded', () => {
