@@ -2,10 +2,12 @@
 
 namespace App\Repositories\Eloquent;
 
+use App\Contracts\Repositories\StoreRepositoryInterface;
 use App\Models\Store;
 use App\Models\User;
-use App\Contracts\Repositories\StoreRepositoryInterface;
+use App\Models\Domain;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Str;
 
 class StoreRepository implements StoreRepositoryInterface
 {
@@ -20,7 +22,20 @@ class StoreRepository implements StoreRepositoryInterface
      */
     public function create(string $name, string $domain, string $email, array $data = []): Store
     {
-        return Store::createStore($name, $domain, $email, $data);
+        $store = new Store();
+        $store->name = $name;
+        $store->slug = Str::slug($name);
+        $store->email = $email;
+        $store->fill($data);
+        $store->save();
+
+        // Create domain for the store
+        $storeDomain = new Domain();
+        $storeDomain->domain = $domain;
+        $storeDomain->store_id = $store->id;
+        $storeDomain->save();
+
+        return $store;
     }
 
     /**
@@ -89,5 +104,26 @@ class StoreRepository implements StoreRepositoryInterface
     public function delete(Store $store): bool
     {
         return $store->delete();
+    }
+
+    /**
+     * Get all stores with their domains.
+     *
+     * @return Collection
+     */
+    public function getAllWithDomains(): Collection
+    {
+        return Store::with('domains')->get();
+    }
+
+    /**
+     * Find a store by ID with its domains.
+     *
+     * @param int $id
+     * @return Store|null
+     */
+    public function findWithDomains(int $id): ?Store
+    {
+        return Store::with('domains')->find($id);
     }
 } 
