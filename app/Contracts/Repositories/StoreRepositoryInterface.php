@@ -66,4 +66,19 @@ interface StoreRepositoryInterface
      * @return bool
      */
     public function delete(Store $store): bool;
+
+    /**
+     * Get all stores with their domains.
+     *
+     * @return Collection
+     */
+    public function getAllWithDomains(): Collection;
+
+    /**
+     * Find a store by ID with its domains.
+     *
+     * @param int $id
+     * @return Store|null
+     */
+    public function findWithDomains(int $id): ?Store;
 } 

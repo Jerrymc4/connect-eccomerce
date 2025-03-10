@@ -60,36 +60,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/store/onboarding/complete', [App\Http\Controllers\Auth\MultiStepRegistrationController::class, 'completeOnboarding'])->name('store.onboarding.complete');
     
     // Home route after authentication
-    Route::get('/home', function () {
-        // Redirect based on user type
-        $user = \Illuminate\Support\Facades\Auth::user();
-        
-        // Check user type by property instead of method
-        if ($user->user_type === \App\Models\User::TYPE_ADMIN) {
-            // Admin dashboard
-            return view('admin.dashboard');
-        } elseif ($user->user_type === \App\Models\User::TYPE_STORE_OWNER) {
-            // Get the store if it exists
-            $store = $user->store;
-            
-            if (!$store) {
-                // No store yet, show the dashboard with option to create store
-                return view('admin.dashboard');
-            }
-            
-            // Get the store URL if available
-            $domain = $store->domains->first();
-            
-            if ($domain) {
-                return redirect()->away("https://{$domain->domain}");
-            }
-            
-            // Otherwise, show the dashboard
-            return view('admin.dashboard');
-        }
-        
-        return view('admin.dashboard');
-    })->name('home');
+    Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 });
 
 // Google Authentication
@@ -97,34 +68,8 @@ Route::get('/auth/google', [App\Http\Controllers\Auth\GoogleController::class, '
 Route::get('/auth/google/callback', [App\Http\Controllers\Auth\GoogleController::class, 'handleGoogleCallback']);
 
 // Store management routes (formerly tenant management)
-Route::prefix('stores')->group(function () {
-    // List all stores
-    Route::get('/', function () {
-        $stores = Store::getAllStores();
-        return view('stores.index', compact('stores'));
-    })->name('stores.index');
-    
-    // Create a new store (form)
-    Route::get('/create', function () {
-        return view('stores.create');
-    })->name('stores.create');
-    
-    // Create a new store (action)
-    Route::post('/', function () {
-        $validated = request()->validate([
-            'name' => 'required|string|max:255',
-            'domain' => 'required|string|max:255|unique:domains,domain',
-        ]);
-        
-        $store = Store::createStore(
-            $validated['name'],
-            $validated['domain'],
-            \Illuminate\Support\Facades\Auth::user()->email ?? 'admin@example.com'  // Use authenticated user's email or fallback
-        );
-        
-        return redirect()->route('stores.index')
-            ->with('success', 'Store created successfully!');
-    })->name('stores.store');
+Route::prefix('stores')->middleware('auth')->group(function () {
+    Route::get('/', [App\Http\Controllers\Store\StoreController::class, 'index'])->name('stores.index');
 });
 
 // Store Routes
