@@ -18,10 +18,10 @@ class CreateDomainsTable extends Migration
         Schema::create('domains', function (Blueprint $table) {
             $table->increments('id');
             $table->string('domain', 255)->unique();
-            $table->unsignedInteger('tenant_id');
+            $table->unsignedInteger('store_id');
 
             $table->timestamps();
-            $table->foreign('tenant_id')->references('id')->on('stores')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('store_id')->references('id')->on('stores')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 

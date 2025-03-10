@@ -34,7 +34,7 @@
             </div>
         </div>
 
-        <form method="POST" action="{{ route('register.store') }}" class="space-y-6">
+        <form method="POST" action="{{ route('register.create-store') }}" class="space-y-6" enctype="multipart/form-data">
             @csrf
 
             <!-- Store Information -->

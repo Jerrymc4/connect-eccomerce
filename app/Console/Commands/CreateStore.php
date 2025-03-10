@@ -103,7 +103,7 @@ class CreateStore extends Command
                     DB::statement("DROP DATABASE IF EXISTS `{$dbName}`");
                     // Also delete the store record from the admin database
                     DB::connection('mysql')->table('stores')->where('id', $id)->delete();
-                    DB::connection('mysql')->table('domains')->where('tenant_id', $id)->delete();
+                    DB::connection('mysql')->table('domains')->where('store_id', $id)->delete();
                 } catch (\Exception $ex) {
                     $this->error('Error during cleanup: ' . $ex->getMessage());
                 }
