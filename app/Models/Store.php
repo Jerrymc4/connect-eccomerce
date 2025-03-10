@@ -10,13 +10,15 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Artisan;
+use Stancl\Tenancy\Contracts\Tenant;
+use Stancl\Tenancy\Database\Concerns\TenantRun;
 
 /**
  * Store represents an ecommerce store in our multi-tenant system.
  */
-class Store extends BaseTenant implements TenantWithDatabase
+class Store extends BaseTenant implements TenantWithDatabase, Tenant
 {
-    use HasDatabase, HasDomains;
+    use HasDatabase, HasDomains, TenantRun;
     
     /**
      * The table associated with the model.
@@ -113,13 +115,11 @@ class Store extends BaseTenant implements TenantWithDatabase
     }
     
     /**
-     * Get tenant key
-     * 
-     * @return string|int
+     * Get the value of the key used for identifying the tenant.
      */
     public function getTenantKey()
     {
-        return $this->getAttribute($this->getTenantKeyIdentifier());
+        return $this->getAttribute($this->getTenantKeyName());
     }
 
     /**
@@ -165,8 +165,6 @@ class Store extends BaseTenant implements TenantWithDatabase
     public static function createStore(string $name, string $domain, string $email, array $additionalData = []): self
     {
         try {
-            DB::beginTransaction();
-            
             // Insert with explicit columns
             $id = DB::table('stores')->insertGetId([
                 'name' => $name,
@@ -194,12 +192,38 @@ class Store extends BaseTenant implements TenantWithDatabase
             $store = self::find($id);
             $store->tenancy_db_name = 'store_' . $store->id;
             $store->save();
+
+            // Create domain
+            $store->domains()->create(['domain' => $domain]);
             
-            DB::commit();
+            try {
+                // Initialize the tenant database
+                Log::info('Creating database for store: ' . $store->id);
+                $store->createDatabase();
+                
+                // Run migrations for the tenant database
+                Log::info('Running migrations for store: ' . $store->id);
+                $store->run(function ($store) {
+                    $result = Artisan::call('migrate', [
+                        '--force' => true,
+                        '--path' => 'database/migrations/tenant',
+                        '--database' => 'tenant'
+                    ]);
+                    
+                    if ($result !== 0) {
+                        Log::error('Migration failed for store: ' . $store->id . ' with exit code: ' . $result);
+                        throw new \Exception('Failed to run migrations');
+                    }
+                    
+                    Log::info('Migrations completed for store: ' . $store->id);
+                });
+            } catch (\Exception $e) {
+                Log::error('Failed to setup tenant database: ' . $e->getMessage());
+                throw $e;
+            }
             
             return $store;
         } catch (\Exception $e) {
-            DB::rollBack();
             Log::error('Failed to create store: ' . $e->getMessage());
             throw $e;
         }
@@ -272,5 +296,52 @@ class Store extends BaseTenant implements TenantWithDatabase
         }
         
         return false;
+    }
+
+    public function createDomain($data): \Stancl\Tenancy\Contracts\Domain
+    {
+        $class = config('tenancy.domain_model');
+
+        if (! is_array($data)) {
+            $data = ['domain' => $data];
+        }
+
+        $domain = (new $class)->fill($data);
+        $domain->store_id = $this->id;
+        $domain->save();
+
+        return $domain;
+    }
+
+    /**
+     * Get the name of the key used for identifying the tenant.
+     */
+    public function getTenantKeyName(): string
+    {
+        return 'id';
+    }
+
+    /**
+     * Get the value of an internal key.
+     */
+    public function getInternal(string $key)
+    {
+        return $this->getAttribute($key);
+    }
+
+    /**
+     * Set the value of an internal key.
+     */
+    public function setInternal(string $key, $value)
+    {
+        $this->setAttribute($key, $value);
+        return $this;
+    }
+
+    public function createDatabase()
+    {
+        $config = $this->database();
+        $manager = $config->manager();
+        $manager->createDatabase($this);
     }
 }
